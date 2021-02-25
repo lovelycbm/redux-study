@@ -1,43 +1,34 @@
 import { createStore } from "redux";
 
-const plus = document.getElementById("plus");
-const minus = document.getElementById("minus");
-const number = document.querySelector("span");
+const form = document.querySelector("form");
+const input = document.querySelector("input");
+const ul = document.querySelector("ul");
 
-const ADD = "ADD";
-const MINUS = "MINUS";
+const ADD_TODO = "ADD_TODO";
+const DELETE_TODO = "DELETE_TODO";
 
-// 내가 했던것과 비교하기.
-//useReducer
-const countModifier = (count = 0, action) => {
+const reducer = (state = [], action) => {
+  console.log(action);
   switch (action.type) {
-    case ADD:
-      return count + 1;
-    case MINUS:
-      return count - 1;
+    case ADD_TODO:
+      //상태를 mutate(변형) 하면 안되기 때문에 state는 그대로 가져오고 값은 넣는다?
+      return [...state, { text: action.text, id: action.id }];
+    case DELETE_TODO:
+      return [];
     default:
-      return count;
+      return state;
   }
 };
-// useContext
-const countStore = createStore(countModifier);
 
-//context.getState()
-const onChange = () => {
-  number.innerText = countStore.getState();
-};
-//이건 그냥 필요할때 부른듯? 아닌가?
-countStore.subscribe(onChange);
+const store = createStore(reducer);
 
-// dispatch는 useReducer랑 동일 . 인풋값은 오브젝트로.
-// 문제는 얘는 type을 바꿀수가 없네...;
-//
-const handlePlus = () => {
-  countStore.dispatch({ type: ADD });
+store.subscribe(() => console.log(store.getState()));
+
+const onSubmit = (e) => {
+  e.preventDefault();
+  const toDo = input.value;
+  input.value = "";
+  store.dispatch({ type: ADD_TODO, text: toDo, id: Date.now() });
 };
 
-const handleMinus = () => {
-  countStore.dispatch({ type: MINUS });
-};
-plus.addEventListener("click", handlePlus);
-minus.addEventListener("click", handleMinus);
+form.addEventListener("submit", onSubmit);
